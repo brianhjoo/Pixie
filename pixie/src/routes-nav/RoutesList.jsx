@@ -2,13 +2,15 @@ import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from '../homepage/HomePage';
 import UserAlbum from '../userpage/UserAlbum';
-import SignUp from '../auth/SignUp';
-import LogIn from '../auth/LogIn';
+import SignUpForm from '../auth/SignUpForm';
+import LogInForm from '../auth/LogInForm';
+import PropTypes from 'prop-types';
 
-/**
+
+/** Site-wide routes.
  *
  */
-function RoutesList({ currentUser }) {
+function RoutesList({ currentUser, signup }) {
   console.debug('RoutesList');
 
   return (
@@ -16,15 +18,15 @@ function RoutesList({ currentUser }) {
       <Routes>
         {!currentUser &&
           <>
-            <Route path='/signup' element={<SignUp />} />
-            <Route path='/login' element={<LogIn />} />
+            <Route path='/signup' element={<SignUpForm signup={signup} />} />
+            <Route path='/login' element={<LogInForm />} />
           </>
         }
 
         {currentUser &&
-        <>
-          <Route path='/album' element={<UserAlbum />} />
-        </>
+          <>
+            <Route path='/album' element={<UserAlbum />} />
+          </>
         }
 
         <Route path='/' element={<HomePage />} />
@@ -32,6 +34,11 @@ function RoutesList({ currentUser }) {
       </Routes>
     </div>
   )
+}
+
+RoutesList.propTypes = {
+  currentUser: PropTypes.object,
+  signup: PropTypes.func,
 }
 
 export default RoutesList;
