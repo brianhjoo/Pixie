@@ -1,13 +1,50 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
-class User(db.model):
+
+class User(db.Model):
     '''User in the system'''
 
     __tablename__ = 'users'
+
+    def __repr__(self):
+        return f'<User username={self.username}>'
+
+    username = db.Column(
+        db.Text,
+        nullable=False,
+        primary_key=True,
+    )
+
+    admin = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    email = db.Column(
+        db.Text,
+        nullable=False,
+        unique=True,
+    )
+
+    first_name = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    last_name = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    hashed_password = db.Column(
+        db.Text,
+        nullable=False,
+    )
 
 
 
