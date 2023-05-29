@@ -1,31 +1,20 @@
-import { useEffect, useState } from "react";
-import PixieAPI from "./api";
-
+import React, { useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import NavBar from './routes-nav/NavBar';
+import RoutesList from './routes-nav/RoutesList';
 
 function App() {
-  const [countries, setCountries] = useState([]);
-  const [errors, setErrors] = useState(null);
-
-  useEffect(function fetchCountriesOnMount() {
-    async function getCountries() {
-      try {
-        const countries = await PixieAPI.getCountries();
-        setCountries(countries);
-      } catch(err) {
-          setErrors(err);
-      }
-    }
-    getCountries();
-  }, []);
-
-  if (errors) return 'Something went wrong!';
+  const [currentUser, setCurrentUser] = useState({
+    data: null,
+    isLoading: true,
+    errors: null,
+  });
 
   return (
-    <ul className="m-6">
-      {countries.map((country) => (
-        <li key={country.name} className="text-blue-500">{country.name}</li>
-      ))}
-    </ul>
+    <BrowserRouter>
+      <NavBar currentUser={currentUser.data} />
+      <RoutesList currentUser={currentUser.data} />
+    </BrowserRouter>
   );
 }
 
