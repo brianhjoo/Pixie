@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, request, redirect, render_template, flash, jsonify
 from werkzeug.exceptions import Unauthorized
+from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
 
@@ -31,11 +32,23 @@ def signup():
 
     user_data = request.json
 
-    # TODO: Need to send user_data to models for processing.
+    try:
+        user = User.signup(
+            username=user_data['username'],
+            password=user_data['password'],
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            email=user_data['email'],
+            is_admin='false',
+        )
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return IntegrityError
 
     token = create_token({
-        'username': user_data['username'],
-        'is_admin': user_data['is_admin'],
+        'username': user['username'],
+        'is_admin': user['is_admin'],
     })
 
-    return jsonify(token)
+    return jsonify(token=token)

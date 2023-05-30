@@ -19,16 +19,9 @@ class User(db.Model):
         primary_key=True,
     )
 
-    admin = db.Column(
-        db.Boolean,
-        nullable=False,
-        default=False,
-    )
-
-    email = db.Column(
+    password = db.Column(
         db.Text,
         nullable=False,
-        unique=True,
     )
 
     first_name = db.Column(
@@ -41,11 +34,17 @@ class User(db.Model):
         nullable=False,
     )
 
-    hashed_password = db.Column(
+    email = db.Column(
         db.Text,
         nullable=False,
+        unique=True,
     )
 
+    is_admin = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False,
+    )
 
 
 
@@ -55,5 +54,3 @@ def connect_db(app):
     app.app_context().push()
     db.app = app
     db.init_app(app)
-
-
