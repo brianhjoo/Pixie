@@ -27,6 +27,7 @@ psycopg2-binary==2.9.6
 ptyprocess==0.7.0
 pure-eval==0.2.2
 Pygments==2.15.1
+PyJWT==2.7.0
 python-dotenv==1.0.0
 six==1.16.0
 SQLAlchemy==2.0.15
