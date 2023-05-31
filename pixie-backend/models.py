@@ -46,6 +46,24 @@ class User(db.Model):
         default=False,
     )
 
+    @classmethod
+    def signup(cls, username, password, first_name, last_name, email, is_admin):
+        ''' Hashes password and adds user to db. '''
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = cls(
+            username=username,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            is_admin=is_admin,
+        )
+
+        db.session.add(user)
+
+        return user
 
 
 def connect_db(app):
