@@ -56,7 +56,7 @@ def signup():
         'is_admin': user.is_admin,
     })
 
-    return jsonify(token=token)
+    return jsonify(token=token), 201
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -82,3 +82,29 @@ def login():
             'code': 'not_found_error',
             'status_code': 404,
         })
+
+#============================================================ User Photos ====#
+
+
+@app.route('/<username>', methods=['GET'])
+def show_user_details(username):
+    ''' Gets all user data including their photos. '''
+
+
+
+    print('######## USER_DATA: ', user_data)
+
+
+# function authenticateJWT(req, res, next) {
+#   const authHeader = req.headers?.authorization;
+#   if (authHeader) {
+#     const token = authHeader.replace(/^[Bb]earer /, "").trim();
+
+#     try {
+#       res.locals.user = jwt.verify(token, SECRET_KEY);
+#     } catch (err) {
+#       /* ignore invalid tokens (but don't store user!) */
+#     }
+#   }
+#   return next();
+# }
