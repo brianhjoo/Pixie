@@ -57,3 +57,28 @@ def signup():
     })
 
     return jsonify(token=token)
+
+@app.route('/login', methods=['POST'])
+def login():
+    ''' Handle user authentication. '''
+
+    user_data = request.get_json()
+
+    user = User.authenticate(
+        username=user_data['username'],
+        password=user_data['password'],
+    )
+
+    if user:
+        token = create_token({
+            'username': user.username,
+            'is_admin': user.is_admin,
+        })
+
+        return jsonify(token=token)
+
+    return jsonify({
+            'message': 'Username or password is incorrect!',
+            'code': 'not_found_error',
+            'status_code': 404,
+        })
