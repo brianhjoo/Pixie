@@ -65,6 +65,19 @@ class User(db.Model):
 
         return user
 
+    @classmethod
+    def authenticate(cls, username, password):
+        ''' Find user in db with username and password. '''
+
+        user = cls.query.filter_by(username=username).first()
+
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
+
+        return False
+
 
 def connect_db(app):
     '''Connect to the database'''
