@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request, redirect, render_template, flash, jsonify
+from flask import Flask, request, jsonify
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
@@ -90,10 +90,16 @@ def login():
 def show_user_details(username):
     ''' Gets all user data including their photos. '''
 
+    auth_header = request.headers.get('Authorization')
 
+    if auth_header:
+        token = auth_header.split(' ')[1]
+    else:
+        token = ''
 
-    print('######## USER_DATA: ', user_data)
+    print('TOKEN @@@@@@@@@: ', token)
 
+    return jsonify('user data')
 
 # function authenticateJWT(req, res, next) {
 #   const authHeader = req.headers?.authorization;
