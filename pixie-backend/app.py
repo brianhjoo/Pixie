@@ -8,13 +8,14 @@ from dotenv import load_dotenv
 
 from models import db, connect_db, User
 from helpers.token import create_token
+from helpers.decorators.token_required import token_required
 
 load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
@@ -87,30 +88,11 @@ def login():
 
 
 @app.route('/<username>', methods=['GET'])
-def show_user_details(username):
+@token_required
+def show_user_details(current_user, username):
     ''' Gets all user data including their photos. '''
 
-    auth_header = request.headers.get('Authorization')
+    if current_user.username != username:
+        return jsonify({'message': 'Forbidden'}, 403)
 
-    if auth_header:
-        token = auth_header.split(' ')[1]
-    else:
-        token = ''
-
-    print('TOKEN @@@@@@@@@: ', token)
-
-    return jsonify('user data')
-
-# function authenticateJWT(req, res, next) {
-#   const authHeader = req.headers?.authorization;
-#   if (authHeader) {
-#     const token = authHeader.replace(/^[Bb]earer /, "").trim();
-
-#     try {
-#       res.locals.user = jwt.verify(token, SECRET_KEY);
-#     } catch (err) {
-#       /* ignore invalid tokens (but don't store user!) */
-#     }
-#   }
-#   return next();
-# }
+    return jsonify({'message': 'This route works!!'})
