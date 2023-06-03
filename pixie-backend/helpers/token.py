@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 def create_token(user):
