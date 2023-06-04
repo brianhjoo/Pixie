@@ -95,4 +95,6 @@ def show_user_details(current_user, username):
     if current_user.username != username:
         return jsonify({'message': 'Forbidden'}, 403)
 
-    return jsonify({'message': 'This route works!!'})
+    user = current_user.serialize()
+
+    return jsonify(user=user)
