@@ -46,6 +46,17 @@ class User(db.Model):
         default=False,
     )
 
+    def serialize(self):
+        ''' Serialize to dictionary. '''
+
+        return {
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'is_admin': self.is_admin,
+        }
+
     @classmethod
     def signup(cls, username, password, first_name, last_name, email, is_admin):
         ''' Hashes password and adds user to db. '''
