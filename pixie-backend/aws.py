@@ -30,3 +30,19 @@ def upload_file(file_name, bucket=BUCKET, object_name=None):
 
     return True
 
+def download_file(file_name, bucket=BUCKET, object_name=None):
+    ''' Download file from s3 bucket. '''
+
+    # If s3 object_name was not specified, use file_name
+    if object_name is None:
+        object_name = os.path.basename(file_name)
+
+    # Download the file
+    s3_client = S3
+
+    try:
+        s3_client.download_file(file_name, bucket, object_name)
+    except ClientError:
+        return False
+
+    return True
