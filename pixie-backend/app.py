@@ -1,14 +1,16 @@
 import os
-
+import base64
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import Unauthorized
 from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
+from PIL import Image
 
 from models import db, connect_db, User
 from helpers.token import create_token
 from helpers.decorators.token_required import token_required
+from aws import upload_file
 
 load_dotenv()
 
@@ -25,6 +27,25 @@ debug = DebugToolbarExtension(app)
 connect_db(app)
 
 
+def decode_and_upload_img(data):
+    ''' Decodes base-64-encoded image and uploads it to AWS s3. '''
+
+    base64_encoded_image = data['image']
+    image_name = data['image_name']
+    image_type = data['image_type']
+    # image = base64.b64decode(base64_encoded_image.split(',')[1])
+    image = base64.b64decode(base64_encoded_image)
+    image_path = f'./image_holding/{image_name}.{image_type}'
+
+    with open(image_path, 'wb') as image_file:
+        image_file.write(image)
+
+    upload_file(image_path)
+
+    os.remove(image_path)
+
+
+#=== ROUTES ===#
 #============================================================== User Auth ====#
 
 @app.route('/signup', methods=['POST'])
@@ -84,7 +105,8 @@ def login():
             'status_code': 404,
         })
 
-#============================================================ User Photos ====#
+
+#=========================================================== User Detail =====#
 
 
 @app.route('/<username>', methods=['GET'])
@@ -98,3 +120,17 @@ def show_user_details(current_user, username):
     user = current_user.serialize()
 
     return jsonify(user=user)
+
+
+#=========================================================== Image Upload ====#
+
+
+@app.route('/upload', methods=['POST'])
+@token_required
+def upload_image(current_user):
+    ''' Takes user uploaded image and uploads it to AWS s3 bucket. '''
+
+    data = request.get_json()
+    decode_and_upload_img(data)
+
+    return jsonify({'message': 'Image uploaded successfully!'})
