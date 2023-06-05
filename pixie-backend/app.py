@@ -10,7 +10,7 @@ from PIL import Image
 from models import db, connect_db, User
 from helpers.token import create_token
 from helpers.decorators.token_required import token_required
-from aws import upload_file
+from aws import upload_file, download_file, list_user_files
 
 load_dotenv()
 
@@ -27,22 +27,38 @@ debug = DebugToolbarExtension(app)
 connect_db(app)
 
 
-def decode_and_upload_img(data):
+def decode_and_upload_img(data, username):
     ''' Decodes base-64-encoded image and uploads it to AWS s3. '''
 
     base64_encoded_image = data['image']
     image_name = data['image_name']
     image_type = data['image_type']
-    # image = base64.b64decode(base64_encoded_image.split(',')[1])
     image = base64.b64decode(base64_encoded_image)
     image_path = f'./image_holding/{image_name}.{image_type}'
 
+    # Writes the image data to the image_file in binary format.
     with open(image_path, 'wb') as image_file:
         image_file.write(image)
 
-    upload_file(image_path)
+    upload_file(image_path, username)
 
     os.remove(image_path)
+
+def download_and_encode_img(img_file, username):
+    ''' Downloads image from s3 and encodes it to base-64. '''
+
+    download_file(img_file, username)
+
+    image_path = f'./image_holding/{img_file}'
+
+    # Reads an image file, encodes its binary content into base64 format,
+    # and then decodes the base64-encoded data into a UTF-8 string.
+    with open(image_path, 'rb') as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+
+    os.remove(image_path)
+
+    return encoded_string
 
 
 #=== ROUTES ===#
@@ -106,24 +122,31 @@ def login():
         })
 
 
-#=========================================================== User Detail =====#
-
+#================================================== User Detail & Images =====#
 
 @app.route('/<username>', methods=['GET'])
 @token_required
 def show_user_details(current_user, username):
-    ''' Gets all user data including their photos. '''
+    ''' Gets all user data, including a list of all their images. '''
 
-    if current_user.username != username:
+    username = current_user.username
+
+    if username != username:
         return jsonify({'message': 'Forbidden'}, 403)
+
+    img_files = list_user_files(username)
+
+
+    encoded_imgs = (
+        [download_and_encode_img(img_file, username) for img_file in img_files]
+    )
 
     user = current_user.serialize()
 
-    return jsonify(user=user)
+    return jsonify(user=user, encoded_imgs=encoded_imgs)
 
 
 #=========================================================== Image Upload ====#
-
 
 @app.route('/upload', methods=['POST'])
 @token_required
@@ -131,6 +154,6 @@ def upload_image(current_user):
     ''' Takes user uploaded image and uploads it to AWS s3 bucket. '''
 
     data = request.get_json()
-    decode_and_upload_img(data)
+    decode_and_upload_img(data, current_user.username)
 
     return jsonify({'message': 'Image uploaded successfully!'})
