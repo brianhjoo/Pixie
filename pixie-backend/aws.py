@@ -13,12 +13,16 @@ S3 = boto3.client(
 )
 
 
-def upload_file(file_name, bucket=BUCKET, object_name=None):
+def upload_file(
+        file_name,
+        folder_name,
+        bucket=BUCKET,
+        object_name=None):
     ''' Upload a file to a s3 bucket. '''
 
     # If s3 object_name was not specified, use file_name
     if object_name is None:
-        object_name = os.path.basename(file_name)
+        object_name = f'{folder_name}/{os.path.basename(file_name)}'
 
     # Upload the file
     s3_client = S3
@@ -30,19 +34,37 @@ def upload_file(file_name, bucket=BUCKET, object_name=None):
 
     return True
 
-def download_file(file_name, bucket=BUCKET, object_name=None):
-    ''' Download file from s3 bucket. '''
+def download_file(
+        file_name,
+        folder_name,
+        bucket=BUCKET,
+        object_name=None):
+    ''' Download a file from s3 bucket. '''
 
-    # If s3 object_name was not specified, use file_name
     if object_name is None:
-        object_name = os.path.basename(file_name)
+        object_name = f'{folder_name}/{os.path.basename(file_name)}'
 
-    # Download the file
     s3_client = S3
 
     try:
-        s3_client.download_file(file_name, bucket, object_name)
+        s3_client.download_file(bucket, object_name, f'image_holding/{file_name}')
     except ClientError:
         return False
 
     return True
+
+def list_user_files(folder_name,
+                    bucket=BUCKET):
+    ''' Get a list files in a folder. '''
+
+    s3_client = S3
+
+    try:
+        response = s3_client.list_objects_v2(Bucket=bucket, Prefix=folder_name)
+    except ClientError:
+        return False
+
+    if 'Contents' in response:
+        files = [content['Key'].split('/')[1] for content in response['Contents']]
+
+    return files
