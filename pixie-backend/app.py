@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from PIL import Image
 
 from models import db, connect_db, User
-from helpers.token import create_token
+from helpers.json_web_token import create_token
 from helpers.decorators.token_required import token_required
 from aws import upload_file, download_file, list_user_files
 
@@ -135,7 +135,6 @@ def show_user_details(current_user, username):
         return jsonify({'message': 'Forbidden'}, 403)
 
     img_files = list_user_files(username)
-
 
     encoded_imgs = (
         [download_and_encode_img(img_file, username) for img_file in img_files]
