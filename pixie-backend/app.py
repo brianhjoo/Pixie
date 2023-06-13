@@ -129,9 +129,9 @@ def login():
 def show_user_details(current_user, username):
     ''' Gets all user data, including a list of all their images. '''
 
-    username = current_user.username
+    user = current_user.username
 
-    if username != username:
+    if user != username:
         return jsonify({'message': 'Forbidden'}, 403)
 
     img_files = list_user_files(username)
