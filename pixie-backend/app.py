@@ -156,14 +156,10 @@ def upload_image(current_user):
     upload_successful = decode_and_upload_img(data, current_user.username)
 
     if upload_successful:
-        img_name = data['img_name']
-        img_type = data['img_type']
-        public = data['public']
-
         uploaded_img = Image.upload_image(
-            img_name=img_name,
-            img_type=img_type,
-            public=public,
+            img_name=data['img_name'],
+            img_type=data['img_type'],
+            public=data['public'],
             username=current_user.username,
         )
 
