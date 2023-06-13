@@ -40,9 +40,10 @@ def decode_and_upload_img(data, username):
     with open(image_path, 'wb') as image_file:
         image_file.write(image)
 
-    upload_file(image_path, username)
-
+    upload_successful = upload_file(image_path, username)
     os.remove(image_path)
+
+    return upload_successful
 
 def download_and_encode_img(img_file, username):
     ''' Downloads image from s3 and encodes it to base-64. '''
@@ -156,10 +157,12 @@ def upload_image(current_user):
     upload_successful = decode_and_upload_img(data, current_user.username)
 
     if upload_successful:
+        public = False if data['public'] == 'False' else True
+
         uploaded_img = Image.upload_image(
-            img_name=data['img_name'],
-            img_type=data['img_type'],
-            public=data['public'],
+            img_name=data['image_name'],
+            img_type=data['image_type'],
+            public=public,
             username=current_user.username,
         )
 
