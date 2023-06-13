@@ -1,12 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
 class User(db.Model):
-    '''User in the system'''
+    ''' User in the system '''
 
     __tablename__ = 'users'
 
@@ -14,7 +15,7 @@ class User(db.Model):
         return f'<User username={self.username}>'
 
     username = db.Column(
-        db.Text,
+        db.String(50),
         nullable=False,
         primary_key=True,
     )
@@ -90,8 +91,51 @@ class User(db.Model):
         return False
 
 
+class Image(db.Model):
+    ''' User uploaded image '''
+
+    __tablename__ = 'images'
+
+    def __repr__(self):
+        return f'<Image id={self.id}: img={self.img_name}.{self.img_type}>'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
+    img_name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True,
+    )
+
+    img_type = db.Column(
+        db.String(20),
+        nullable=False,
+    )
+
+    public = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    username = db.Column(
+        db.String(50),
+        db.ForeignKey('users.username', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    timestamp = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+    )
+
+
 def connect_db(app):
-    '''Connect to the database'''
+    ''' Connect to the database '''
 
     app.app_context().push()
     db.app = app
