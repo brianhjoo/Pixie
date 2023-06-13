@@ -133,6 +133,33 @@ class Image(db.Model):
         default=datetime.utcnow,
     )
 
+    @classmethod
+    def upload_image(cls, img_name, img_type, public, username):
+        ''' Add user image to db. '''
+
+        image = cls(
+            img_name=img_name,
+            img_type=img_type,
+            public=public,
+            username=username,
+        )
+
+        db.session.add(image)
+
+        return image
+
+    def serialize(self):
+        ''' Serialize to dictionary. '''
+
+        return {
+            'id': self.id,
+            'img_name': self.img_name,
+            'img_type': self.img_type,
+            'public': self.public,
+            'username': self.username,
+            'timestamp': self.timestamp,
+        }
+
 
 def connect_db(app):
     ''' Connect to the database '''
