@@ -7,7 +7,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
 from PIL import Image
 
-from models import db, connect_db, User
+from models import db, connect_db, User, Image
 from helpers.json_web_token import create_token
 from helpers.decorators.token_required import token_required
 from aws import upload_file, download_file, list_user_files
@@ -153,6 +153,35 @@ def upload_image(current_user):
     ''' Takes user uploaded image and uploads it to AWS s3 bucket. '''
 
     data = request.get_json()
-    decode_and_upload_img(data, current_user.username)
+    upload_successful = decode_and_upload_img(data, current_user.username)
 
-    return jsonify({'message': 'Image uploaded successfully!'})
+    if upload_successful:
+        img_name = data['img_name']
+        img_type = data['img_type']
+        public = data['public']
+
+        uploaded_img = Image.upload_image(
+            img_name=img_name,
+            img_type=img_type,
+            public=public,
+            username=current_user.username,
+        )
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({
+                'message': 'Something went wrong!',
+                'code': 'integrity_error',
+                'status_code': 500,
+            })
+    else:
+        return jsonify({
+            'message': 'Could not upload image!',
+            'code': 'client_error',
+        })
+
+    img = uploaded_img.serialize()
+
+    return jsonify(img=img)
