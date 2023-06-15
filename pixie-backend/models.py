@@ -47,6 +47,8 @@ class User(db.Model):
         default=False,
     )
 
+    images = db.relationship('Image', backref='user')
+
     def serialize(self):
         ''' Serialize to dictionary. '''
 
