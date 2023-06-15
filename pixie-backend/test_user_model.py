@@ -138,7 +138,7 @@ class ImageModelTestCase(TestCase):
     def tearDown(self):
         db.session.rollback()
 
-    def test_upload_valid_image(self):
+    def test_valid_upload_image(self):
         img3 = Image.upload_image(
             'test_img3',
             'jpg',
