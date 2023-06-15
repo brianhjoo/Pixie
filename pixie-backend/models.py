@@ -1,4 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy, UniqueConstraint
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.schema import UniqueConstraint
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 
@@ -105,7 +106,7 @@ class Image(db.Model):
     __tablename__ = 'images'
 
     __table_args__ = (
-        UniqueConstraint('img_name', 'username', name='uix_img_name_username')
+        UniqueConstraint('img_name', 'username', name='uix_img_name_username'),
     )
 
     def __repr__(self):
