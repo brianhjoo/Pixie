@@ -67,4 +67,6 @@ def list_user_files(folder_name,
     if 'Contents' in response:
         files = [content['Key'].split('/')[1] for content in response['Contents']]
 
-    return files
+        return files
+    else:
+        return []
