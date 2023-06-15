@@ -45,6 +45,7 @@ def decode_and_upload_img(data, username):
 
     return upload_successful
 
+
 def download_and_encode_img(img_file, username):
     ''' Downloads image from s3 and encodes it to base-64. '''
 
@@ -97,6 +98,7 @@ def signup():
 
     return jsonify(token=token), 201
 
+
 @app.route('/login', methods=['POST'])
 def login():
     ''' Handle user authentication. '''
@@ -117,13 +119,40 @@ def login():
         return jsonify(token=token)
 
     return jsonify({
-            'message': 'Username or password is incorrect!',
-            'code': 'not_found_error',
-            'status_code': 404,
-        })
+        'message': 'Username or password is incorrect!',
+        'code': 'not_found_error',
+        'status_code': 404,
+    })
 
+
+#============================================================== Homepage =====#
+
+@app.route('/', methods=['GET'])
+@token_required
+def show_homepage(current_user):
+    ''' Show homepage:
+     - anonomous users: no public images
+     - logged in users: 100 most recent user images '''
+
+    if current_user:
+        public_imgs = (
+            Image
+            .query
+            .filter(Image.public == 'T')
+            .order_by(Image.timestamp.desc())
+            .limit(100)
+            .all()
+        )
+
+        print('######################## PUBLIC_IMGS: ', public_imgs)
+        # TODO: need to iterate over public_imgs, match public img names with
+        # names on s3, download them, encode them, and return public imgs to
+        # front.
+
+    return None
 
 #================================================== User Detail & Images =====#
+
 
 @app.route('/<username>', methods=['GET'])
 @token_required
