@@ -144,12 +144,20 @@ def show_homepage(current_user):
             .all()
         )
 
-        print('######################## PUBLIC_IMGS: ', public_imgs)
-        # TODO: need to iterate over public_imgs, match public img names with
-        # names on s3, download them, encode them, and return public imgs to
-        # front.
+        encoded_public_imgs = []
 
-    return None
+        for img in public_imgs:
+            img_file = f'{img.img_name}.{img.img_type}'
+            username = img.username
+
+            encoded_public_imgs.append(
+                download_and_encode_img(img_file, username)
+            )
+
+        return jsonify(encoded_public_imgs=encoded_public_imgs)
+
+    return jsonify({[]})
+
 
 #================================================== User Detail & Images =====#
 
