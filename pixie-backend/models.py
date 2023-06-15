@@ -47,6 +47,12 @@ class User(db.Model):
         default=False,
     )
 
+    timestamp = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+    )
+
     images = db.relationship('Image', backref='user')
 
     def serialize(self):
