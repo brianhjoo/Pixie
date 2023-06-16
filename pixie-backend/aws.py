@@ -53,8 +53,7 @@ def download_file(
 
     return True
 
-def list_user_files(folder_name,
-                    bucket=BUCKET):
+def list_user_files(folder_name, bucket=BUCKET):
     ''' Get a list files in a folder. '''
 
     s3_client = S3
@@ -70,3 +69,22 @@ def list_user_files(folder_name,
         return files
     else:
         return []
+
+def delete_file(
+        file_name,
+        folder_name,
+        bucket=BUCKET,
+        object_name=None):
+    ''' Delete a file from s3 bucket. '''
+
+    s3_client = S3
+
+    if object_name is None:
+        object_name = f'{folder_name}/{file_name}'
+
+    try:
+        s3_client.Object(bucket, object_name).delete()
+    except ClientError:
+        return False
+
+    return True
