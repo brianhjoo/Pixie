@@ -8,8 +8,8 @@ BUCKET = os.environ.get('BUCKET')
 S3 = boto3.client(
     's3',
     'us-west-1',
-    aws_access_key_id = os.environ.get('ACCESS_KEY_ID'),
-    aws_secret_access_key = os.environ.get('SECRET_ACCESS_KEY')
+    aws_access_key_id=os.environ.get('ACCESS_KEY_ID'),
+    aws_secret_access_key=os.environ.get('SECRET_ACCESS_KEY')
 )
 
 
@@ -34,6 +34,7 @@ def upload_file(
 
     return True
 
+
 def download_file(
         file_name,
         folder_name,
@@ -47,11 +48,13 @@ def download_file(
     s3_client = S3
 
     try:
-        s3_client.download_file(bucket, object_name, f'image_holding/{file_name}')
+        s3_client.download_file(bucket, object_name,
+                                f'image_holding/{file_name}')
     except ClientError:
         return False
 
     return True
+
 
 def list_user_files(folder_name, bucket=BUCKET):
     ''' Get a list files in a folder. '''
@@ -64,11 +67,13 @@ def list_user_files(folder_name, bucket=BUCKET):
         return False
 
     if 'Contents' in response:
-        files = [content['Key'].split('/')[1] for content in response['Contents']]
+        files = [content['Key'].split('/')[1]
+                 for content in response['Contents']]
 
         return files
     else:
         return []
+
 
 def delete_file(
         file_name,

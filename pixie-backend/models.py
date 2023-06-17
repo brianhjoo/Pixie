@@ -160,6 +160,19 @@ class Image(db.Model):
 
         return image
 
+    @classmethod
+    def delete_image(cls, img_name, username):
+        ''' Delete user image form db. '''
+
+        image = cls.query.filter(
+            img_name=img_name,
+            username=username,
+        )
+
+        db.session.delete(image)
+
+        return True
+
     def serialize(self):
         ''' Serialize to dictionary. '''
 
