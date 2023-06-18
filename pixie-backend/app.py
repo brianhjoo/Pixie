@@ -10,7 +10,7 @@ from PIL import Image
 from models import db, connect_db, User, Image
 from helpers.json_web_token import create_token
 from helpers.decorators.token_required import token_required
-from aws import upload_file, download_file, list_user_files
+from aws import upload_file, download_file, list_user_files, delete_file
 
 load_dotenv()
 
@@ -169,9 +169,6 @@ def show_user_details(current_user, username):
 
     user = current_user.username if current_user else None
 
-    if user != username:
-        return jsonify({'message': 'Forbidden'}, 403)
-
     img_files = list_user_files(username)
 
     encoded_imgs = (
@@ -188,7 +185,8 @@ def show_user_details(current_user, username):
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_image(current_user):
-    ''' Takes user uploaded image and uploads it to AWS s3 bucket. '''
+    ''' Takes user uploaded image and uploads it to AWS s3 bucket
+     and uploads image-data to psql db. '''
 
     data = request.get_json()
     upload_successful = decode_and_upload_img(data, current_user.username)
@@ -221,3 +219,40 @@ def upload_image(current_user):
     img = uploaded_img.serialize()
 
     return jsonify(img=img)
+
+
+@app.route('/delete/<int:img_id>', methods=['DELETE'])
+@token_required
+def delete_image(current_user, img_id):
+    ''' Deletes user image from s3 and psql db. '''
+
+    img = Image.query.filter_by(id=img_id).first()
+
+    delete_successful = delete_file(
+        file_name=f'{img.img_name}.{img.img_type}',
+        folder_name=current_user.username,
+    )
+
+    if delete_successful:
+        Image.delete_image(
+            img_name=img.img_name,
+            username=current_user.username,
+        )
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({
+                'message': 'Something went wrong!',
+                'code': 'integrity_error',
+                'status_code': 500,
+            })
+
+    else:
+        return jsonify({
+            'message': 'Could not delete image!',
+            'code': 'client_error',
+        })
+
+    return jsonify({'message': 'Image deleted successfully!'})
