@@ -88,7 +88,10 @@ def delete_file(
         object_name = f'{folder_name}/{file_name}'
 
     try:
-        s3_client.Object(bucket, object_name).delete()
+        s3_client.delete_object(
+            Bucket=bucket,
+            Key=object_name,
+        )
     except ClientError:
         return False
 
