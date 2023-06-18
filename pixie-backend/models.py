@@ -164,10 +164,10 @@ class Image(db.Model):
     def delete_image(cls, img_name, username):
         ''' Delete user image form db. '''
 
-        image = cls.query.filter(
+        image = cls.query.filter_by(
             img_name=img_name,
             username=username,
-        )
+        ).first()
 
         db.session.delete(image)
 
