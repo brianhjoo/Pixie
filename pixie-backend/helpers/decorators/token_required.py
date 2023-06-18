@@ -31,6 +31,9 @@ def token_required(func):
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid token!'}, 401)
 
-        return func(current_user, *args, **kwargs)
+        if current_user:
+            return func(current_user, *args, **kwargs)
+        else:
+            return jsonify({'message': 'Forbidden'}, 403)
 
     return wrapper
