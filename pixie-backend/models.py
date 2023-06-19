@@ -99,6 +99,19 @@ class User(db.Model):
 
         return False
 
+    @classmethod
+    def delete(cls, username):
+        ''' Delete a user from db. '''
+
+        user = cls.query.filter_by(username=username).first()
+
+        if user:
+            db.session.delete(user)
+        else:
+            return False
+
+        return True
+
 
 class Image(db.Model):
     ''' User uploaded image '''
